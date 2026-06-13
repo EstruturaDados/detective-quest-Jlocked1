@@ -1,11 +1,25 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Desafio Detective Quest
 // Tema 4 - Árvores e Tabela Hash
 // Este código inicial serve como base para o desenvolvimento das estruturas de navegação, pistas e suspeitos.
 // Use as instruções de cada região para desenvolver o sistema completo com árvore binária, árvore de busca e tabela hash.
 
-int main() {
+typedef struct No
+{
+    char valor[50];
+    struct No *direita;
+    struct No *esquerda;
+} no_arvore_binaria_t;
+
+no_arvore_binaria_t *criarSala(char *valor);
+no_arvore_binaria_t *explorarSalas(no_arvore_binaria_t *proximaSala, no_arvore_binaria_t *salaOriginal);
+void liberarMemoria(no_arvore_binaria_t *mapa);
+
+int main()
+{
 
     // 🌱 Nível Novato: Mapa da Mansão com Árvore Binária
     //
@@ -17,6 +31,48 @@ int main() {
     // - Exiba o nome da sala a cada movimento.
     // - Use recursão ou laços para caminhar pela árvore.
     // - Nenhuma inserção dinâmica é necessária neste nível.
+
+    // Criando Salas
+    no_arvore_binaria_t *mapa = criarSala("Hall de Entrada");
+
+    mapa->direita = criarSala("Sala de Lazer");
+    mapa->esquerda = criarSala("Biblioteca");
+
+    mapa->direita->direita = criarSala("Cozinha");
+    mapa->direita->esquerda = criarSala("Sótão");
+
+    int opcao;
+    no_arvore_binaria_t *jogador = mapa;
+
+    do
+    {
+        printf("\n\n SALA ATUAL: %s\n", jogador->valor);
+
+        printf("\n === MENU DE AÇÕES ===\n");
+        printf(" 1. Caminhar para a ESQUERDA\n");
+        printf(" 2. Caminhar para a DIREITA\n");
+        printf(" 0. Sair\n");
+
+        printf("\nDigite uma opção: ");
+        scanf("%d", &opcao);
+        getchar();
+
+        switch (opcao)
+        {
+        case 0:
+            liberarMemoria(mapa);
+            break;
+        case 1:
+            jogador = explorarSalas(jogador->esquerda, mapa);
+            break;
+        case 2:
+            jogador = explorarSalas(jogador->direita, mapa);
+            break;
+        default:
+            printf("Opção inválida, escolha uma opção do menu!\n");
+            break;
+        }
+    } while (opcao != 0);
 
     // 🔍 Nível Aventureiro: Armazenamento de Pistas com Árvore de Busca
     //
@@ -45,3 +101,29 @@ int main() {
     return 0;
 }
 
+no_arvore_binaria_t *criarSala(char *valor)
+{
+    no_arvore_binaria_t *no = malloc(sizeof(no_arvore_binaria_t));
+    strcpy(no->valor, valor);
+    no->direita = NULL;
+    no->esquerda = NULL;
+    return no;
+}
+
+no_arvore_binaria_t *explorarSalas(no_arvore_binaria_t *proximaSala, no_arvore_binaria_t *salaOriginal)
+{
+    if(proximaSala == NULL) {
+        printf("Não há mais salas para explorar, retornando a sala original...\nAperte qualquer tecla para continuar");
+        getchar();
+        return salaOriginal;
+    }
+    return proximaSala;
+}
+
+void liberarMemoria(no_arvore_binaria_t *mapa) {
+    if(mapa != NULL) {
+        liberarMemoria(mapa->esquerda);
+        liberarMemoria(mapa->direita);
+        free(mapa);
+    }
+}
